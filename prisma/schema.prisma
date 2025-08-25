@@ -5,9 +5,8 @@ generator client {
 datasource db {
   provider  = "postgresql"
   url       = env("DATABASE_URL")
-  directUrl = env("DIRECT_URL") 
+  directUrl = env("DIRECT_URL")
 }
-
 
 model User {
   id        String   @id @default(uuid())
@@ -18,14 +17,6 @@ model User {
   language  String?  @default("en")
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-}
-
-
-model Strategy {
-  id        Int      @id @default(autoincrement())
-  title     String
-  fileUrl   String
-  createdAt DateTime @default(now())
 }
 
 model Role {
@@ -45,26 +36,26 @@ model Industry {
   updatedAt   DateTime @updatedAt
 }
 
-
-
-
-model user_role {
+model UserRole {
   id          Int      @id @default(autoincrement())
-  user_id     String
-  role_id     Int
-  industry_id Int
+  userId      String
+  roleId      Int
+  industryId  Int
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
   expiresAt   DateTime @default(dbgenerated("NOW() + INTERVAL '1 day'"))
 }
 
-
-
-
+model Strategy {
+  id        Int      @id @default(autoincrement())
+  title     String
+  fileUrl   String
+  createdAt DateTime @default(now())
+}
 
 model Objective {
   id          Int    @id @default(autoincrement())
-  strategy_id Int
+  strategyId  Int
   title       String @db.VarChar(200)
   description String?
   difficulty  Int    @default(1)
@@ -75,44 +66,37 @@ model Objective {
 model KeyResult {
   id          Int      @id @default(autoincrement())
   objectiveId Int
-  strategyId  Int?     // <- note the `?` makes it optional
+  strategyId  Int?
   text        String
   expiresAt   DateTime @default(dbgenerated("NOW() + INTERVAL '1 day'"))
 }
 
-
 model KeywordBaseInnovative {
   id                Int      @id @default(autoincrement())
-  strategy_id       Int
-  key_result        String
-  first_innovative  String
-  second_innovative String
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  strategyId        Int
+  keyResult         String
+  firstInnovative   String
+  secondInnovative  String
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
 }
-
 
 model SoloScore {
   id                  Int      @id @default(autoincrement())
   userId              Int
   score               Int
-  scor                Int?     // new optional field
+  scor                Int?
   percentage          Int
-  alignmentStrategy   Int      
-  objectiveClarity    Int      
-  keyResultQuality    Int     
-  initiativeRelevance Int     
-  challengeAdoption   Int      
-  badge               String?  // optional, e.g., "Gold Navigator"
-  trophy              String?  // optional, e.g., "Clarity Trophy"
+  alignmentStrategy   Int
+  objectiveClarity    Int
+  keyResultQuality    Int
+  initiativeRelevance Int
+  challengeAdoption   Int
+  badge               String?
+  trophy              String?
   createdAt           DateTime @default(now())
   updatedAt           DateTime @updatedAt
 }
-
-
-
-
 
 model Team {
   id        Int       @id @default(autoincrement())
@@ -123,28 +107,20 @@ model Team {
 
   members   TeamMember[]
   session   Session?
- scores    FinalTeamScore[] 
-
-
+  scores    FinalTeamScore[]
 }
-
-
-
-
 
 model TeamMember {
   id        Int      @id @default(autoincrement())
   teamId    Int
   userId    Int
-  role      String   @default("PLAYER")  // New field for role
+  role      String   @default("PLAYER")
   joinedAt  DateTime @default(now())
 
   team      Team @relation(fields: [teamId], references: [id])
 
   @@unique([teamId, userId])
 }
-
-
 
 model Session {
   id        Int      @id @default(autoincrement())
@@ -155,73 +131,45 @@ model Session {
   team      Team     @relation(fields: [teamId], references: [id])
 }
 
-
-
-
-
 model UserAutoJoin {
   id      Int     @id @default(autoincrement())
   userId  Int     @unique
-  allowed Boolean @default(true) // true if user wants to auto join teams
+  allowed Boolean @default(true)
 }
-
-
-
-
-model TeamMemberRole {
-  id        Int      @id @default(autoincrement())
-  teamId    Int
-  userId    Int
-  role      String
-  joinedAt  DateTime @default(now())
-}
-
-
-
 
 model FinalTeamScore {
   id                  Int      @id @default(autoincrement())
   userId              Int
   teamId              Int
   teamName            String
-
-  // individual player score
   score               Int
-  scor                Int?     
+  scor                Int?
   percentage          Int
-  alignmentStrategy   Int      
-  objectiveClarity    Int      
-  keyResultQuality    Int     
-  initiativeRelevance Int     
-  challengeAdoption   Int      
-  badge               String?  
-  trophy              String?  
-
-  // aggregated fields for team
-  totalScore          Int?     
-  totalMembers        Int?     
-  avgPercentage       Float?   
-
+  alignmentStrategy   Int
+  objectiveClarity    Int
+  keyResultQuality    Int
+  initiativeRelevance Int
+  challengeAdoption   Int
+  badge               String?
+  trophy              String?
+  totalScore          Int?
+  totalMembers        Int?
+  avgPercentage       Float?
   createdAt           DateTime @default(now())
   updatedAt           DateTime @updatedAt
 
-  // relation to Team
   team Team @relation(fields: [teamId], references: [id])
 }
-
 
 model CampaignSession {
   id         String   @id @default(uuid())
   playerId   String
   username   String
-  strategyId String?   // optional, added later
-
-  progress   Json     // [{ level, score, passed, unlocked }]
-
+  strategyId String?
+  progress   Json
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
 }
-
 
 model CampaignModeScore {
   id              Int      @id @default(autoincrement())
@@ -230,21 +178,15 @@ model CampaignModeScore {
   level           Int
   sector          String?
   role            String?
-
   strategyScore   Int?
   objectiveScore  Int?
   keyResultScore  Int?
   initiativeScore Int?
   challengeScore  Int?
   totalScore      Int?
-
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 }
-
-
-
-
 
 model CertificationChallenge {
   id        Int    @id @default(autoincrement())
@@ -255,19 +197,16 @@ model CertificationChallenge {
   type      ChallengeItemType
   parentId  Int?
 
-  // Self relation
-  parent    CertificationChallenge?   @relation("ItemHierarchy", fields: [parentId], references: [id])
-  children  CertificationChallenge[]  @relation("ItemHierarchy")
+  parent    CertificationChallenge?  @relation("ItemHierarchy", fields: [parentId], references: [id])
+  children  CertificationChallenge[] @relation("ItemHierarchy")
 }
 
 enum ChallengeItemType {
-  CHALLENGE   // root: challenge with name, scenario, strategy
-  OBJECTIVE   // belongs to a challenge
-  KEY_RESULT  // belongs to an objective
-  INNOVATIVE  // belongs to an objective
+  CHALLENGE
+  OBJECTIVE
+  KEY_RESULT
+  INNOVATIVE
 }
-
-
 
 model Subscription {
   id        Int      @id @default(autoincrement())
