@@ -1,0 +1,279 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL") 
+}
+
+
+model User {
+  id        String   @id @default(uuid())
+  name      String
+  email     String   @unique
+  password  String
+  phone     String?
+  language  String?  @default("en")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+
+model Strategy {
+  id        Int      @id @default(autoincrement())
+  title     String
+  fileUrl   String
+  createdAt DateTime @default(now())
+}
+
+model Role {
+  id          Int      @id @default(autoincrement())
+  title       String
+  description String
+  exampleText String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Industry {
+  id          Int      @id @default(autoincrement())
+  title       String
+  description String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+
+
+
+model user_role {
+  id          Int      @id @default(autoincrement())
+  user_id     String
+  role_id     Int
+  industry_id Int
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  expiresAt   DateTime @default(dbgenerated("NOW() + INTERVAL '1 day'"))
+}
+
+
+
+
+
+model Objective {
+  id          Int    @id @default(autoincrement())
+  strategy_id Int
+  title       String @db.VarChar(200)
+  description String?
+  difficulty  Int    @default(1)
+
+  @@map("objectives")
+}
+
+model KeyResult {
+  id          Int      @id @default(autoincrement())
+  objectiveId Int
+  strategyId  Int?     // <- note the `?` makes it optional
+  text        String
+  expiresAt   DateTime @default(dbgenerated("NOW() + INTERVAL '1 day'"))
+}
+
+
+model KeywordBaseInnovative {
+  id                Int      @id @default(autoincrement())
+  strategy_id       Int
+  key_result        String
+  first_innovative  String
+  second_innovative String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+
+model SoloScore {
+  id                  Int      @id @default(autoincrement())
+  userId              Int
+  score               Int
+  scor                Int?     // new optional field
+  percentage          Int
+  alignmentStrategy   Int      
+  objectiveClarity    Int      
+  keyResultQuality    Int     
+  initiativeRelevance Int     
+  challengeAdoption   Int      
+  badge               String?  // optional, e.g., "Gold Navigator"
+  trophy              String?  // optional, e.g., "Clarity Trophy"
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+}
+
+
+
+
+
+model Team {
+  id        Int       @id @default(autoincrement())
+  title     String
+  mission   String
+  createdBy Int
+  createdAt DateTime  @default(now())
+
+  members   TeamMember[]
+  session   Session?
+ scores    FinalTeamScore[] 
+
+
+}
+
+
+
+
+
+model TeamMember {
+  id        Int      @id @default(autoincrement())
+  teamId    Int
+  userId    Int
+  role      String   @default("PLAYER")  // New field for role
+  joinedAt  DateTime @default(now())
+
+  team      Team @relation(fields: [teamId], references: [id])
+
+  @@unique([teamId, userId])
+}
+
+
+
+model Session {
+  id        Int      @id @default(autoincrement())
+  teamId    Int      @unique
+  token     String   @unique
+  createdAt DateTime @default(now())
+
+  team      Team     @relation(fields: [teamId], references: [id])
+}
+
+
+
+
+
+model UserAutoJoin {
+  id      Int     @id @default(autoincrement())
+  userId  Int     @unique
+  allowed Boolean @default(true) // true if user wants to auto join teams
+}
+
+
+
+
+model TeamMemberRole {
+  id        Int      @id @default(autoincrement())
+  teamId    Int
+  userId    Int
+  role      String
+  joinedAt  DateTime @default(now())
+}
+
+
+
+
+model FinalTeamScore {
+  id                  Int      @id @default(autoincrement())
+  userId              Int
+  teamId              Int
+  teamName            String
+
+  // individual player score
+  score               Int
+  scor                Int?     
+  percentage          Int
+  alignmentStrategy   Int      
+  objectiveClarity    Int      
+  keyResultQuality    Int     
+  initiativeRelevance Int     
+  challengeAdoption   Int      
+  badge               String?  
+  trophy              String?  
+
+  // aggregated fields for team
+  totalScore          Int?     
+  totalMembers        Int?     
+  avgPercentage       Float?   
+
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  // relation to Team
+  team Team @relation(fields: [teamId], references: [id])
+}
+
+
+model CampaignSession {
+  id         String   @id @default(uuid())
+  playerId   String
+  username   String
+  strategyId String?   // optional, added later
+
+  progress   Json     // [{ level, score, passed, unlocked }]
+
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+
+model CampaignModeScore {
+  id              Int      @id @default(autoincrement())
+  userId          Int
+  campaignId      Int
+  level           Int
+  sector          String?
+  role            String?
+
+  strategyScore   Int?
+  objectiveScore  Int?
+  keyResultScore  Int?
+  initiativeScore Int?
+  challengeScore  Int?
+  totalScore      Int?
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+
+
+
+
+model CertificationChallenge {
+  id        Int    @id @default(autoincrement())
+  userId    Int
+  name      String
+  scenario  String
+  strategy  String
+  type      ChallengeItemType
+  parentId  Int?
+
+  // Self relation
+  parent    CertificationChallenge?   @relation("ItemHierarchy", fields: [parentId], references: [id])
+  children  CertificationChallenge[]  @relation("ItemHierarchy")
+}
+
+enum ChallengeItemType {
+  CHALLENGE   // root: challenge with name, scenario, strategy
+  OBJECTIVE   // belongs to a challenge
+  KEY_RESULT  // belongs to an objective
+  INNOVATIVE  // belongs to an objective
+}
+
+
+
+model Subscription {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  planId    Int
+  startDate DateTime @default(now())
+  expiryDate DateTime
+  active    Boolean  @default(true)
+}
