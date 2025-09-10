@@ -52,7 +52,6 @@ import { AuthModule } from './auth/auth.module';
     SoloScoreModule,
     SessionModule,
     TeamModule,
-    WebsocketModule,
     TeamMemberRoleModule,
     FinalTeamScoreModule,
     CampaignSessionModule,
@@ -65,7 +64,9 @@ import { AuthModule } from './auth/auth.module';
     PlansModule,
     AuthModule
   ],
-   controllers: [AppController],
+  controllers: [AppController],
   providers: [PrismaService],
 })
+
+
 export class AppModule { }
