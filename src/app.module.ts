@@ -29,6 +29,8 @@ import { AiScenarioStrategyModule } from './campaign/certification/ai-scenario-s
 import { CertificationDataModule } from './campaign/certification/certification-data/certification-data.module';
 import { FinalCertificationEvaluationModule } from './campaign/certification/final-certification-evaluation/final-certification-evaluation.module';
 import { PlansModule } from './plans/plans.module';
+import { AuthModule } from './auth/auth.module';
+
 
 
 @Module({
@@ -59,7 +61,8 @@ import { PlansModule } from './plans/plans.module';
     AiScenarioStrategyModule,
     CertificationDataModule,
     FinalCertificationEvaluationModule,
-    PlansModule
+    PlansModule,
+    AuthModule
   ],
 })
 export class AppModule { }
