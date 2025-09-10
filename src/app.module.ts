@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { GameModule } from './game/game.module';
 import { RoleModule } from './role/role.module';
+import { AppController } from './app.controller';
 
 import { IndustryModule } from './industry/industry.module';
 import { UserRoleModule } from './user-role/user-role.module';
@@ -64,5 +65,7 @@ import { AuthModule } from './auth/auth.module';
     PlansModule,
     AuthModule
   ],
+   controllers: [AppController],
+  providers: [PrismaService],
 })
 export class AppModule { }
