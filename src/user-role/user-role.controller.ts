@@ -1,21 +1,31 @@
-import { Controller, Post, Get, Body, Param } from '@nestjs/common';
-import { UserRoleService } from './user-role.service';
+import { Controller, Post, Get, Body, Param } from '@nestjs/common'
+import { UserRoleService } from './user-role.service'
 
 @Controller('user-role')
 export class UserRoleController {
   constructor(private readonly userRoleService: UserRoleService) {}
 
   @Post('assign')
-  async assignRole(@Body() body: { user_id: string; role_id: number; industry_id: number }) {
-    return this.userRoleService.assignRole(body);
+  async assignRole(
+    @Body() body: { user_id: string; role_id: number; industry_id: number }
+  ) {
+    // Map snake_case to camelCase
+    const mappedBody = {
+      userId: body.user_id,
+      roleId: body.role_id,
+      industryId: body.industry_id,
+    }
+
+    return this.userRoleService.assignRole(mappedBody)
   }
 
   @Get('list')
   async listAssignments() {
-    return this.userRoleService.listAssignments();
+    return this.userRoleService.listAssignments()
   }
-    @Get(':user_id')
+
+  @Get(':user_id')
   async getAssignmentsByUser(@Param('user_id') user_id: string) {
-    return this.userRoleService.getAssignmentsByUser(user_id);
+    return this.userRoleService.getAssignmentsByUser(user_id)
   }
 }

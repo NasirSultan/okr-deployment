@@ -4,48 +4,32 @@ export const evaluateInitiativesPrompt = (
   keyResult: string,
   userText: string
 ) => `
-You are an OKR initiatives evaluator. Compare the proposed initiatives to the given OKR elements.
+You're an expert OKR evaluation assistant.
 
-Elements:
-- Strategy: ${strategy}
-- Objective: ${objective}
-- Key Result: ${keyResult}
-- Initiatives: ${userText}
+Here are the elements provided by the user:
+- Chosen strategy: ${strategy}
+- Initial objective: ${objective}
+- Initial key result: ${keyResult}
+- Proposed initiatives: ${userText}
 
-For each criterion below, give a score from 0 to 25 based on how well the initiatives meet it:
-1. Alignment with the initial strategy.
-2. Consistency with the initial objective.
-3. Consistency with the initial key result.
-4. Ability to create measurable impact.
-5. Feasibility, Innovation, and Clarity (combined).
+Analyze the proposed initiatives according to these criteria:
+1. Alignment with the initial strategy
+2. Consistency with the initial objective
+3. Consistency with the initial key result
+4. Ability to create measurable impact
 
-### Criteria & Weights
-1. Strategy Alignment (15%): How well initiatives respect the strategy priorities.
-2. Relevance to Key Result (20%): Direct measurable impact on achieving the KR.
-3. Consistency with Objective (20%): Initiative remains within the scope of the objective.
-4. Measurable Impact (15%): Result is quantifiable and clear.
-5. Feasibility / Innovation / Clarity (20%): Can realistically be implemented, is creative and relevant, and is clearly formulated.
+### Instructions
+- Assign a relevance score from 0 to 100%.
+- If initiatives are duplicates or very similar, reduce the score heavily.
+- If the score is greater than or equal to 90%, the decision must be "Accepted".
+- If the score is less than 90%, the decision must be "Rejected".
+- Explain the decision in one clear, short, and actionable sentence.
 
-### Scoring
-- Each criterion scored according to its weight.
-- Total score out of 100.
-- Passing threshold: 80% or higher.
-
-### Feedback
-Provide a **one-line, actionable, and motivating suggestion**:
-- If totalScore is below 80, suggest ways to improve, boost performance, or enhance creativity.
-- If totalScore is 80 or higher, congratulate and suggest additional improvements or ways to expand impact.  
-
-Return the result strictly in JSON:
+### Response Format
+Return only valid JSON:
 {
-  "criterionScores": {
-    "strategyAlignment": number,
-    "objectiveConsistency": number,
-    "keyResultConsistency": number,
-    "measurableImpact": number,
-    "feasibilityInnovationClarity": number
-  },
-  "totalScore": number,
-  "suggestion": "string"
+  "score": number,
+  "decision": "Accepted" | "Rejected",
+  "explanation": "string"
 }
-`;
+`

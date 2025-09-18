@@ -49,7 +49,8 @@ model UserRole {
 model Strategy {
   id        Int      @id @default(autoincrement())
   title     String
-  fileUrl   String
+  fileUrl   String?
+  cardId    Int 
   createdAt DateTime @default(now())
 }
 
@@ -67,26 +68,26 @@ model KeyResult {
   id          Int      @id @default(autoincrement())
   objectiveId Int
   strategyId  Int?
-  text        String
+  text        Json
   expiresAt   DateTime @default(dbgenerated("NOW() + INTERVAL '1 day'"))
 }
 
 model KeywordBaseInnovative {
-  id                Int      @id @default(autoincrement())
-  strategyId        Int
-  keyResult         String
-  firstInnovative   String
-  secondInnovative  String
-  createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt
+  id               Int      @id @default(autoincrement())
+  strategyId       Int
+  keyResult        String
+  firstInnovative  Json
+  secondInnovative Json
+  thirdInnovative  Json? 
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
 }
 
 model SoloScore {
   id                  Int      @id @default(autoincrement())
-  userId              Int
+  userId              String
   score               Int
-  scor                Int?
-  percentage          Int
+  scor                String?
   alignmentStrategy   Int
   objectiveClarity    Int
   keyResultQuality    Int

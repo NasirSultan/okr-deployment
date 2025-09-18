@@ -17,12 +17,12 @@ export class ObjectiveEvaluatorService {
     const prompt = predictObjectiveScorePrompt(objective, strategy, role, industry);
     const response = await llm.invoke(prompt);
 
-    // Convert response.content to string safely
+
     let raw: string;
     if (typeof response.content === 'string') {
       raw = response.content;
     } else if (Array.isArray(response.content)) {
-      // Flatten array of objects to a single string
+
       raw = response.content.map(item => ('text' in item ? item.text : JSON.stringify(item))).join(' ');
     } else {
       raw = JSON.stringify(response.content);

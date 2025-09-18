@@ -2,25 +2,30 @@ import { Injectable, BadRequestException, NotFoundException } from '@nestjs/comm
 import { PrismaService } from '../lib/prisma/prisma.service';
 import * as fs from 'fs';
 import * as path from 'path';
-import { Express } from 'express';   
+import { Express } from 'express';
 
 @Injectable()
 export class StrategyService {
   constructor(private prisma: PrismaService) {}
 
-  async addStrategy(title: string, file: Express.Multer.File) {
-    if (!title || !file) throw new BadRequestException('Title and file are required');
+  async addStrategy(title: string, file: Express.Multer.File | undefined, cardId: number) {
+    if (!title || cardId === undefined) throw new BadRequestException('Title and cardId are required');
 
-    const uploadDir = path.join(__dirname, '../../uploads');
-    if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir, { recursive: true });
+    let fileUrl: string | null = null;
 
-    const fileName = Date.now() + '-' + file.originalname;
-    const filePath = path.join(uploadDir, fileName);
+    if (file) {
+      const uploadDir = path.join(__dirname, '../../uploads');
+      if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir, { recursive: true });
 
-    fs.writeFileSync(filePath, file.buffer);
+      const fileName = Date.now() + '-' + file.originalname;
+      const filePath = path.join(uploadDir, fileName);
+
+      fs.writeFileSync(filePath, file.buffer);
+      fileUrl = `/uploads/${fileName}`;
+    }
 
     return this.prisma.strategy.create({
-      data: { title, fileUrl: `/uploads/${fileName}` },
+      data: { title, fileUrl, cardId },
     });
   }
 
@@ -32,26 +37,19 @@ export class StrategyService {
     return strategies[randomIndex];
   }
 
- private startedTeams = new Map<number, boolean>();
+  private startedTeams = new Map<number, boolean>();
 
   async startOrGetStrategy(teamId: number, role: string) {
-    if (!teamId || !role) {
-      throw new BadRequestException('Team ID and role are required');
-    }
+    if (!teamId || !role) throw new BadRequestException('Team ID and role are required');
 
     const team = await this.prisma.team.findUnique({ where: { id: teamId } });
     if (!team) throw new NotFoundException('Team not found');
 
     if (role === 'admin') {
-
       this.startedTeams.set(teamId, true);
       return { message: 'Admin session started. Players can now fetch strategy.' };
     } else if (role === 'player') {
-
-      if (!this.startedTeams.get(teamId)) {
-        return { message: 'Wait for team admin to start' };
-      }
-
+      if (!this.startedTeams.get(teamId)) return { message: 'Wait for team admin to start' };
 
       const strategies = await this.prisma.strategy.findMany();
       if (!strategies.length) throw new NotFoundException('No strategies found');
@@ -62,5 +60,4 @@ export class StrategyService {
       throw new BadRequestException('Invalid role');
     }
   }
-  
 }

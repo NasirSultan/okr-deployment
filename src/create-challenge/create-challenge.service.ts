@@ -19,7 +19,6 @@ export class CreateChallengeService {
   private previousChallenges: Challenge[] = [];
 
   async generateChallenge(input: ChallengeInput): Promise<Challenge> {
-
     const messages = challengePrompt(
       input.strategy,
       input.objective,
@@ -27,51 +26,32 @@ export class CreateChallengeService {
       input.previousAttempts || 0
     );
 
-
     const response = await llm.call(messages);
 
+    let raw = '';
+    if (typeof response === 'string') {
+      raw = response;
+    } else if (response?.content) {
+      raw = typeof response.content === 'string'
+        ? response.content
+        : JSON.stringify(response.content);
+    } else {
+      raw = JSON.stringify(response);
+    }
+
+    const cleaned = raw.replace(/```json|```/g, '').trim();
+
     let challenge: Challenge;
-
     try {
-
-      const text = typeof response === 'string' ? response : JSON.stringify(response);
-      const cleaned = text.replace(/```json|```/g, '').trim();
-
       challenge = JSON.parse(cleaned);
     } catch (err) {
-      console.error('Failed to parse Challenge JSON:', response);
+      console.error('Failed to parse Challenge JSON:', cleaned);
       challenge = {
         title: 'Challenge',
-        text: typeof response === 'string' ? response : JSON.stringify(response)
+        text: cleaned
       };
     }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-   
     this.previousChallenges.push(challenge);
 
     return challenge;

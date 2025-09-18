@@ -1,7 +1,6 @@
-
 export class CreateKeywordBaseInnovativeDto {
-  strategy_id: number;
-  key_result: string;
-  first_innovative: string;
-  second_innovative: string;
+  strategyid: number
+  keyresult: string
+  firstinnovative: { title: string; description: string }
+  secondinnovative: { title: string; description: string }
 }

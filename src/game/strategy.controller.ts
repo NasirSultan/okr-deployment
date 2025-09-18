@@ -1,4 +1,4 @@
-import { Controller, Post, Get, UploadedFile, UseInterceptors, Body } from '@nestjs/common';
+import { Controller, Post, Get, UploadedFile, UseInterceptors,BadRequestException, Body } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { StrategyService } from './strategy.service';
 
@@ -6,10 +6,19 @@ import { StrategyService } from './strategy.service';
 export class StrategyController {
   constructor(private readonly strategyService: StrategyService) {}
 
-  @Post('add-strategy')
+ @Post('add-strategy')
   @UseInterceptors(FileInterceptor('file'))
-  async addStrategy(@Body('title') title: string, @UploadedFile() file: Express.Multer.File) {
-    return this.strategyService.addStrategy(title, file);
+  async addStrategy(
+    @Body('title') title: string,
+    @Body('cardId') cardId: string,
+    @UploadedFile() file: Express.Multer.File | undefined
+  ) {
+    if (!title) throw new BadRequestException('Title is required');
+
+    const cardIdNumber = Number(cardId?.toString().trim());
+    if (isNaN(cardIdNumber)) throw new BadRequestException('cardId must be a number');
+
+    return this.strategyService.addStrategy(title, file, cardIdNumber);
   }
 
   @Get('random-strategy')

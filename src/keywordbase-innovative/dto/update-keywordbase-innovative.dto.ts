@@ -1,4 +1,7 @@
-import { PartialType } from '@nestjs/mapped-types';
-import { CreateKeywordBaseInnovativeDto } from './create-keywordbase-innovative.dto';
-
-export class UpdateKeywordBaseInnovativeDto extends PartialType(CreateKeywordBaseInnovativeDto) {}
+export class UpdateKeywordBaseInnovativeDto {
+  strategyid?: number
+  keyresult?: string
+  firstinnovative?: { title: string; description: string }
+  secondinnovative?: { title: string; description: string }
+  thirdinnovative?: { title: string; description: string }
+}

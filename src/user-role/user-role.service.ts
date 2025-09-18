@@ -5,35 +5,33 @@ import { PrismaService } from '../lib/prisma/prisma.service';
 export class UserRoleService {
   constructor(private prisma: PrismaService) {}
 
-  async assignRole(data: { user_id: string; role_id: number; industry_id: number }) {
-    const { user_id, role_id, industry_id } = data;
+  // Assign a role to a user
+  async assignRole(data: { userId: string; roleId: number; industryId: number }) {
+    const { userId, roleId, industryId } = data;
 
- 
-    await this.prisma.user_role.deleteMany({ where: { user_id } });
+    // Remove old roles for this user
+    await this.prisma.userRole.deleteMany({ where: { userId } });
 
-
-    return this.prisma.user_role.create({
-      data: { user_id, role_id, industry_id },
+    // Assign new role
+    return this.prisma.userRole.create({
+      data: { userId, roleId, industryId },
     });
-
-
-
-  
   }
 
+  // List all active assignments
   async listAssignments() {
     const now = new Date();
 
-    const assignments = await this.prisma.user_role.findMany({
+    const assignments = await this.prisma.userRole.findMany({
       where: { expiresAt: { gt: now } },
     });
 
-    // Manual "populate"
+    // Manually populate user, role, industry
     return Promise.all(
       assignments.map(async (a) => {
-        const user = await this.prisma.user.findUnique({ where: { id: a.user_id } });
-        const role = await this.prisma.role.findUnique({ where: { id: a.role_id } });
-        const industry = await this.prisma.industry.findUnique({ where: { id: a.industry_id } });
+        const user = await this.prisma.user.findUnique({ where: { id: a.userId } });
+        const role = await this.prisma.role.findUnique({ where: { id: a.roleId } });
+        const industry = await this.prisma.industry.findUnique({ where: { id: a.industryId } });
 
         return {
           id: a.id,
@@ -48,20 +46,19 @@ export class UserRoleService {
     );
   }
 
-
-
-   async getAssignmentsByUser(user_id: string) {
+  // Get assignments for a specific user
+  async getAssignmentsByUser(userId: string) {
     const now = new Date();
 
-    const assignments = await this.prisma.user_role.findMany({
-      where: { user_id, expiresAt: { gt: now } },
+    const assignments = await this.prisma.userRole.findMany({
+      where: { userId, expiresAt: { gt: now } },
     });
 
     return Promise.all(
       assignments.map(async (a) => {
-        const user = await this.prisma.user.findUnique({ where: { id: a.user_id } });
-        const role = await this.prisma.role.findUnique({ where: { id: a.role_id } });
-        const industry = await this.prisma.industry.findUnique({ where: { id: a.industry_id } });
+        const user = await this.prisma.user.findUnique({ where: { id: a.userId } });
+        const role = await this.prisma.role.findUnique({ where: { id: a.roleId } });
+        const industry = await this.prisma.industry.findUnique({ where: { id: a.industryId } });
 
         return {
           id: a.id,

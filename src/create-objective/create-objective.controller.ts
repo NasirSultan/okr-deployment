@@ -11,7 +11,7 @@ export class CreateObjectiveController {
     return this.createObjectiveService.generateAndSaveObjectives(strategyId, strategy, role, industry);
   }
 
-  @Get()
+  @Get('fetch-strategy-id-baesed')
   async fetchObjectives(@Query('strategyId') strategyId?: string) {
     const id = strategyId ? parseInt(strategyId, 10) : undefined;
     return this.createObjectiveService.getObjectives(id);
