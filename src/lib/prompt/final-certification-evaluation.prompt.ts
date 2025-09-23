@@ -1,3 +1,4 @@
+// final-certification-evaluation.prompt.ts
 export function buildFinalCertificationEvaluationPrompt(
   scenarioContext: string,
   selectedStrategy: string,
@@ -7,7 +8,8 @@ export function buildFinalCertificationEvaluationPrompt(
   userInitiative1KR1: string,
   userInitiative2KR1: string,
   userInitiative1KR2: string,
-  userInitiative2KR2: string
+  userInitiative2KR2: string,
+  language: string
 ): string {
   return `
 **SCENARIO CONTEXT:**
@@ -23,20 +25,16 @@ ${scenarioContext}
 
 **YOUR TASK:**
 Analyze the player's entire OKR pathway holistically and provide a final score out of 100 using the following weighted criteria:
-all give best output score on proper evaluation
-1.  **Relevance of Chosen Strategy (15%)**
-2.  **Quality of the Objective (15%)**
-3.  **Quality of the Key Result (30%)**
-4.  **Quality of Initiatives (30% - 15% each)**
-5.  **Overall Coherence (10%)**
+1. Relevance of Chosen Strategy (15%)
+2. Quality of the Objective (15%)
+3. Quality of the Key Result (30%)
+4. Quality of Initiatives (30% - 15% each)
+5. Overall Coherence (10%)
+
+**Respond in ${language} language**
 
 **SCORING & OUTPUT FORMAT:**
-You MUST return a JSON object ONLY in this structure. The certificate_level must be determined from the score:
-
-- 90% or more: "Gold"
-- 80–89%: "Silver"
-- 70–79%: "Bronze"
-- Less than 70%: "None"
+Return a JSON object ONLY in this structure:
 
 {
   "score": [0–100],

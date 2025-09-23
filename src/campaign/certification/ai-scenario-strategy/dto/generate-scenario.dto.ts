@@ -1,4 +1,6 @@
+
 export class GenerateScenarioDto {
-  sector: string;   // e.g., "Telecom"
-  role: string;     // e.g., "Chief Technology Officer"
+  sector: string   
+  role: string    
+  language?: string 
 }

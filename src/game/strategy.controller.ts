@@ -1,4 +1,4 @@
-import { Controller, Post, Get, UploadedFile, UseInterceptors,BadRequestException, Body } from '@nestjs/common';
+import { Controller, Post, Get, UploadedFile, ParseIntPipe,UseInterceptors,BadRequestException, Body } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { StrategyService } from './strategy.service';
 
@@ -28,10 +28,14 @@ export class StrategyController {
 
 
 
-  @Post('team-strategy')
-  async startOrGetStrategy(@Body() body: { teamId: number; role: string }) {
-    const { teamId, role } = body;
-    return this.strategyService.startOrGetStrategy(teamId, role);
-  }
+@Post('team-strategy')
+async startOrGetStrategy(
+  @Body('teamId', ParseIntPipe) teamId: number,
+  @Body('role') role: string
+) {
+  return this.strategyService.startOrGetStrategy(teamId, role)
+}
+
+
 
 }

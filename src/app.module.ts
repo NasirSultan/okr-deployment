@@ -33,6 +33,9 @@ import { PlansModule } from './plans/plans.module';
 import { AuthModule } from './auth/auth.module';
 
 
+import { TeamSuggestionEvaluatorModule } from './team-evaluation/suggestion-evaluator-level-1/suggestion-evaluator.module';
+import { TeamEvaluateInitiativesModule } from './team-evaluation/evaluate-initiatives/evaluate-initiatives.module';
+import { TeamFinalOkrEvaluationModule } from './team-evaluation/final-okr-evaluation/final-okr-evaluation.module'; 
 
 @Module({
   imports: [
@@ -52,7 +55,8 @@ import { AuthModule } from './auth/auth.module';
     SoloScoreModule,
     SessionModule,
     TeamModule,
-    TeamMemberRoleModule,
+    WebsocketModule,
+    TeamMemberRoleModule, 
     FinalTeamScoreModule,
     CampaignSessionModule,
     CampaignModeScoreModule,
@@ -62,7 +66,10 @@ import { AuthModule } from './auth/auth.module';
     CertificationDataModule,
     FinalCertificationEvaluationModule,
     PlansModule,
-    AuthModule
+    AuthModule,
+    TeamSuggestionEvaluatorModule,
+    TeamEvaluateInitiativesModule,
+    TeamFinalOkrEvaluationModule
   ],
   controllers: [AppController],
   providers: [PrismaService],

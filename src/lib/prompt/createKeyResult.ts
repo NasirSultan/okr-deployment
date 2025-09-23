@@ -1,4 +1,9 @@
-export const krPrompt = (strategy: string, objective: string, role: string) => `
+export const krPrompt = (
+  strategy: string,
+  objective: string,
+  role: string,
+  language: string,
+) => `
 Generate exactly 3 Key Results for this Objective.
 
 Rules:
@@ -10,6 +15,7 @@ Rules:
 3. Each KR must directly support Objective: "${objective}"
 4. Align with Strategy: "${strategy}"
 5. Consider the Role: "${role}"
+6. Write the response in **${language}**
 
 Return ONLY valid JSON:
 
@@ -17,6 +23,7 @@ Return ONLY valid JSON:
   "strategy": "${strategy}",
   "objective": "${objective}",
   "role": "${role}",
+  "language": "${language}",
   "keyResults": [
     {
       "id": 1,
@@ -35,4 +42,4 @@ Return ONLY valid JSON:
     }
   ]
 }
-`;
+`

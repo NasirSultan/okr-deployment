@@ -38,4 +38,11 @@ export class KeywordBaseInnovativeController {
   addThird(@Param('id') id: string, @Body() dto: AddThirdInnovativeDto) {
     return this.service.addThirdInnovative(Number(id), dto)
   }
+
+@Get('strategy/:strategyId')
+findByStrategy(@Param('strategyId') strategyId: string) {
+  return this.service.findByStrategyId(Number(strategyId))
+}
+
+
 }

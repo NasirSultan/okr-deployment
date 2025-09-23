@@ -12,8 +12,9 @@ export class FinalOkrEvaluationController {
     keyResult: string;
     challenge: string;
     proposal: string;
+    language?: string;  
   }) {
-    const { strategy, objective, keyResult, challenge, proposal } = body;
-    return await this.finalOkrService.evaluate(strategy, objective, keyResult, challenge, proposal);
+    const { strategy, objective, keyResult, challenge, proposal, language } = body;
+    return await this.finalOkrService.evaluate(strategy, objective, keyResult, challenge, proposal, language || 'English');
   }
 }

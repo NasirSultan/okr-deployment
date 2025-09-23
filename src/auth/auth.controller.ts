@@ -31,4 +31,15 @@ export class AuthController {
   async getProfile(@Request() req) {
     return this.authService.getUserById(req.user.userId);
   }
+
+@Post('set-avatar')
+async setAvatar(
+  @Body('userId') userId: string,
+  @Body('avatarPicId') avatarPicId: string
+) {
+  return this.authService.setAvatar(userId, avatarPicId)
+}
+
+
+
 }

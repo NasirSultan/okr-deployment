@@ -2,7 +2,8 @@ export const challengePrompt = (
   strategy: string,
   objective: string,
   keyResult: string,
-  previousAttempts: number
+  previousAttempts: number,
+  language: string,
 ) => [
   {
     role: 'system',
@@ -10,7 +11,8 @@ export const challengePrompt = (
 You are an AI OKR Coach. The player has attempted ${previousAttempts} time(s).
 Based on the Strategy: "${strategy}", Objective: "${objective}", and Key Result: "${keyResult}",
 
-Generate ONE challenge in STRICT JSON format:
+Generate ONE challenge in STRICT JSON format.
+Respond in **${language}**.
 
 {
   "title": "max 8 words, direct and actionable",
@@ -22,6 +24,6 @@ Rules:
 - Title must be short, specific, and motivating.
 - Text must describe the exact next step, no filler or vague advice.
 - Keep it concise, actionable, and easy to follow.
-`
-  }
-];
+`,
+  },
+]

@@ -1,3 +1,4 @@
+// final-certification-evaluation.service.ts
 import { Injectable } from '@nestjs/common';
 import { llm } from '../../../lib/llm/llm';
 import { GenerateScenarioDto } from './dto/generate-scenario.dto';
@@ -16,11 +17,11 @@ export class FinalCertificationEvaluationService {
       dto.userInitiative2KR1,
       dto.userInitiative1KR2,
       dto.userInitiative2KR2,
+      dto.language || 'en', // default to English
     );
 
-    const response = await llm.invoke([{ role: "user", content: prompt }]);
+    const response = await llm.invoke([{ role: 'user', content: prompt }]);
 
-    // Handle both string and structured array cases
     let text: string;
     if (typeof response.content === 'string') {
       text = response.content;
@@ -28,13 +29,11 @@ export class FinalCertificationEvaluationService {
       text = response.content.map((c: any) => c.text ?? '').join(' ');
     }
 
-    // Strip markdown fences if LLM wrapped output with ```json ... ```
     text = text.replace(/```json/g, '').replace(/```/g, '').trim();
 
     try {
       return JSON.parse(text);
     } catch (err) {
-      // Fallback: return raw text so you can debug instead of crashing
       return {
         error: 'Failed to parse LLM response',
         message: err.message,

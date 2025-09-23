@@ -9,9 +9,10 @@ export class FinalOkrEvaluationService {
     objective: string,
     keyResult: string,
     challenge: string,
-    proposal: string
+    proposal: string,
+    language: string
   ) {
-    const prompt = finalOkrEvaluationPrompt(strategy, objective, keyResult, challenge, proposal);
+    const prompt = finalOkrEvaluationPrompt(strategy, objective, keyResult, challenge, proposal, language);
 
     const response = await llm.call([
       { role: 'user', content: prompt }

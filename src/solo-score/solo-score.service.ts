@@ -125,61 +125,151 @@ export class SoloScoreService {
     };
   }
 
-  async getUserRewardsSummary(userId: string) {
-    const latestRecords = await this.prisma.soloScore.findMany({
-      where: { userId },
-      orderBy: { createdAt: 'desc' },
-      take: 5,
-    });
-    if (!latestRecords.length) return null;
+async getUserRewardsSummary(userId: string) {
+  const latestRecords = await this.prisma.soloScore.findMany({
+    where: { userId },
+    orderBy: { createdAt: 'desc' },
+    take: 5,
+  });
+  if (!latestRecords.length) return null;
 
-    const trophiesCount = latestRecords.filter(r => r.trophy).length;
-    const badgesCount = latestRecords.filter(r => r.badge).length;
-    const scorList = latestRecords.map(r => r.scor);
+  const trophiesCount = latestRecords.filter(r => r.trophy).length;
+  const badgesCount = latestRecords.filter(r => r.badge).length;
+  const scorList = latestRecords.map(r => r.scor);
 
-    const sumAchieved = latestRecords.reduce((sum, r) => sum + r.score, 0);
-    const sumMax = latestRecords.length * 100;
-    const successRate = Math.round((sumAchieved / sumMax) * 100);
+  const sumAchieved = latestRecords.reduce((sum, r) => sum + r.score, 0);
+  const sumMax = latestRecords.length * 100;
+  const successRate = Math.round((sumAchieved / sumMax) * 100);
 
-    return { userId, rewards: { trophies: trophiesCount, badges: badgesCount, scor: scorList }, successRate };
-  }
+  // Fetch all records for the user
+  const allRecords = await this.prisma.soloScore.findMany({
+    where: { userId },
+    orderBy: { createdAt: 'desc' },
+  });
 
-  async getUserRanking(userId: string) {
-    const usersScores = await this.prisma.soloScore.groupBy({
-      by: ['userId'],
-      _sum: { score: true },
-      _count: { id: true },
-      orderBy: { _sum: { score: 'desc' } },
-    });
-    if (!usersScores.length) return null;
+  return { 
+    userId, 
+    totalRecords: allRecords.length, 
+    rewards: { trophies: trophiesCount, badges: badgesCount, scor: scorList }, 
+    successRate,
+    allRecords
+  };
+}
 
-    const userIds = usersScores.map(u => u.userId); // string array now
-    const users = await this.prisma.user.findMany({
-      where: { id: { in: userIds } },
-      select: { id: true, name: true },
-    });
 
-    const getLevel = (totalScore: number, recordCount: number) => {
-      const percentage = Math.round((totalScore / (recordCount * 100)) * 100);
-      if (percentage === 100) return 'Master / Navigator Certified';
-      if (percentage >= 90) return 'Expert';
-      if (percentage >= 80) return 'Advanced';
-      if (percentage >= 60) return 'Competent';
-      if (percentage >= 40) return 'Beginner';
-      return 'Novice';
-    };
+async getUserRanking(userId: string) {
+  const usersScores = await this.prisma.soloScore.groupBy({
+    by: ['userId'],
+    _sum: { score: true },
+    _count: { id: true },
+    orderBy: { _sum: { score: 'desc' } },
+  });
 
-    const ranked = usersScores.map((s, index) => {
-      const user = users.find(u => u.id === s.userId);
-      const totalScore = s._sum.score || 0;
-      const recordCount = s._count.id || 1;
-      return { userId: s.userId, name: user?.name || 'Unknown', totalScore, level: getLevel(totalScore, recordCount), rank: index + 1 };
-    });
+  if (!usersScores.length) return null;
+
+  const userIds = usersScores.map(u => u.userId);
+  const users = await this.prisma.user.findMany({
+    where: { id: { in: userIds } },
+    select: { id: true, name: true, avatarPicId: true },
+  });
+
+  const getLevel = (totalScore: number, recordCount: number) => {
+    const percentage = Math.round((totalScore / (recordCount * 100)) * 100);
+    if (percentage === 100) return 'Master / Navigator Certified';
+    if (percentage >= 90) return 'Expert';
+    if (percentage >= 80) return 'Advanced';
+    if (percentage >= 60) return 'Competent';
+    if (percentage >= 40) return 'Beginner';
+    return 'Novice';
+  };
+
+  const ranked = usersScores.map((s, index) => {
+    const user = users.find(u => u.id === s.userId);
+    const totalScore = s._sum.score || 0;
+    const recordCount = s._count.id || 1;
 
     return {
-      topThree: ranked.slice(0, 3),
-      remaining: ranked.slice(3),
-      userDetails: ranked.find(u => u.userId === userId) || null,
+      userId: s.userId,
+      name: user?.name || 'Unknown',
+      avatarPicId: user?.avatarPicId || null,
+      totalScore,
+      level: getLevel(totalScore, recordCount),
+      rank: index + 1,
     };
+  });
+
+  return {
+    topThree: ranked.slice(0, 3),
+    remaining: ranked.slice(3),
+    userDetails: ranked.find(u => u.userId === userId) || null,
+  };
+}
+
+async getTeamRewardsSummary(teamId: number) {
+  const latestRecords = await this.prisma.finalTeamScore.findMany({
+    where: { teamId },
+    orderBy: { createdAt: 'desc' },
+    take: 5,
+  })
+  if (!latestRecords.length) return null
+
+  const trophiesCount = latestRecords.filter(r => r.trophy).length
+  const badgesCount = latestRecords.filter(r => r.badge).length
+  const scoreList = latestRecords.map(r => r.score)
+
+  const sumAchieved = latestRecords.reduce((sum, r) => sum + r.score, 0)
+  const sumMax = latestRecords.length * 100
+  const successRate = Math.round((sumAchieved / sumMax) * 100)
+
+  // Fetch all records for the team
+  const allRecords = await this.prisma.finalTeamScore.findMany({
+    where: { teamId },
+    orderBy: { createdAt: 'desc' },
+  })
+
+  // Calculate average score per field for the team
+  const total = allRecords.reduce(
+    (acc, r) => {
+      acc.alignmentStrategy += r.alignmentStrategy
+      acc.objectiveClarity += r.objectiveClarity
+      acc.keyResultQuality += r.keyResultQuality
+      acc.initiativeRelevance += r.initiativeRelevance
+      acc.challengeAdoption += r.challengeAdoption
+      acc.score += r.score
+      return acc
+    },
+    {
+      alignmentStrategy: 0,
+      objectiveClarity: 0,
+      keyResultQuality: 0,
+      initiativeRelevance: 0,
+      challengeAdoption: 0,
+      score: 0,
+    }
+  )
+
+  const count = allRecords.length
+  const averages = {
+    alignmentStrategy: total.alignmentStrategy / count,
+    objectiveClarity: total.objectiveClarity / count,
+    keyResultQuality: total.keyResultQuality / count,
+    initiativeRelevance: total.initiativeRelevance / count,
+    challengeAdoption: total.challengeAdoption / count,
   }
+
+  const overallAverage = total.score / count
+
+  return {
+    teamId,
+    totalRecords: allRecords.length,
+    rewards: { trophies: trophiesCount, badges: badgesCount, scoreList },
+    successRate,
+    averages,
+    overallAverage,
+    allRecords,
+  }
+}
+
+
+
 }

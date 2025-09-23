@@ -73,4 +73,11 @@ export class KeywordBaseInnovativeService {
       data: { thirdInnovative: dto.thirdinnovative },
     })
   }
+
+async findByStrategyId(strategyId: number) {
+  return this.prisma.keywordBaseInnovative.findMany({
+    where: { strategyId },
+  })
+}
+
 }

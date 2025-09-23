@@ -1,7 +1,6 @@
-import { Controller, Get, Post, Body, Param, Query } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param } from '@nestjs/common';
 import { CampaignModeScoreService } from './campaign-mode-score.service';
 import { CreateCampaignModeScoreDto } from './dto/create-campaign-mode-score.dto';
-import { UpdateCampaignModeScoreDto } from './dto/update-campaign-mode-score.dto';
 
 @Controller('campaign-mode-score')
 export class CampaignModeScoreController {
@@ -19,11 +18,11 @@ export class CampaignModeScoreController {
 
   @Get('by-user/:userId')
   findByUser(@Param('userId') userId: string) {
-    return this.service.findByUserId(Number(userId));
+    return this.service.findByUserId(userId); 
   }
 
-  @Get('by-session')
-  findBySession(@Query('campaignId') campaignId: string, @Query('userId') userId?: string) {
-    return this.service.findBySession(Number(campaignId), userId ? Number(userId) : undefined);
+  @Get('latest/:userId')
+  findLatest(@Param('userId') userId: string) {
+    return this.service.findLatestByUser(userId); 
   }
 }

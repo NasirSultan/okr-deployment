@@ -92,7 +92,7 @@ export class CertificationDataService {
       include: {
         children: {
           include: {
-            children: true, // objectives → key results + innovatives
+            children: true, 
           },
         },
       },

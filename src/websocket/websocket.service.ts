@@ -1,30 +1,29 @@
-import { Injectable } from '@nestjs/common';
-import { Socket } from 'socket.io';
+import { Injectable } from '@nestjs/common'
+import { Socket } from 'socket.io'
 
 @Injectable()
 export class WebsocketService {
-  private invitations: Set<string> = new Set();
-  private clients: Map<number, Socket> = new Map(); 
+  private invitations: Set<string> = new Set()
+  private clients: Map<string, Socket> = new Map() // use string as userId
 
-
-  registerClient(userId: number, client: Socket) {
-    this.clients.set(userId, client);
+  registerClient(userId: string, client: Socket) {
+    this.clients.set(userId, client)
   }
 
-  getClientByUserId(userId: number): Socket | undefined {
-    return this.clients.get(userId);
+  getClientByUserId(userId: string): Socket | undefined {
+    return this.clients.get(userId)
   }
 
   inviteTeam(teamToken: string) {
-    this.invitations.add(teamToken);
-    return `Team invitation sent with token: ${teamToken}`;
+    this.invitations.add(teamToken)
+    return `Team invitation sent with token: ${teamToken}`
   }
 
   isTokenValid(teamToken: string) {
-    return this.invitations.has(teamToken);
+    return this.invitations.has(teamToken)
   }
 
   removeToken(teamToken: string) {
-    this.invitations.delete(teamToken);
+    this.invitations.delete(teamToken)
   }
 }

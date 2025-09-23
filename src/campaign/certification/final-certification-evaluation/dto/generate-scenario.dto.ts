@@ -1,4 +1,5 @@
-import { IsString } from 'class-validator';
+// dto/generate-scenario.dto.ts
+import { IsString, IsOptional } from 'class-validator';
 
 export class GenerateScenarioDto {
   @IsString()
@@ -27,4 +28,8 @@ export class GenerateScenarioDto {
 
   @IsString()
   userInitiative2KR2: string;
+
+  @IsString()
+  @IsOptional()
+  language?: string; 
 }

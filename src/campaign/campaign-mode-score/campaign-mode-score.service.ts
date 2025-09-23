@@ -1,7 +1,7 @@
+// campaign-mode-score.service.ts
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../lib/prisma/prisma.service';
 import { CreateCampaignModeScoreDto } from './dto/create-campaign-mode-score.dto';
-import { UpdateCampaignModeScoreDto } from './dto/update-campaign-mode-score.dto';
 
 @Injectable()
 export class CampaignModeScoreService {
@@ -15,13 +15,16 @@ export class CampaignModeScoreService {
     return this.prisma.campaignModeScore.findMany();
   }
 
-  async findByUserId(userId: number) {
+  // userId is string now
+  async findByUserId(userId: string) {
     return this.prisma.campaignModeScore.findMany({ where: { userId } });
   }
 
-  async findBySession(campaignId: number, userId?: number) {
-    const where: any = { campaignId };
-    if (userId) where.userId = userId;
-    return this.prisma.campaignModeScore.findMany({ where });
+  async findLatestByUser(userId: string) {
+    return this.prisma.campaignModeScore.findFirst({
+      where: { userId },
+      orderBy: { createdAt: 'desc' },
+    });
   }
 }
+

@@ -1,8 +1,10 @@
+// evaluateInitiatives.ts
 export const evaluateInitiativesPrompt = (
   strategy: string,
   objective: string,
   keyResult: string,
-  userText: string
+  userText: string,
+  language: string, // new param
 ) => `
 You're an expert OKR evaluation assistant.
 
@@ -24,6 +26,7 @@ Analyze the proposed initiatives according to these criteria:
 - If the score is greater than or equal to 90%, the decision must be "Accepted".
 - If the score is less than 90%, the decision must be "Rejected".
 - Explain the decision in one clear, short, and actionable sentence.
+- The explanation must be written in **${language}**.
 
 ### Response Format
 Return only valid JSON:

@@ -15,6 +15,7 @@ model User {
   password  String
   phone     String?
   language  String?  @default("en")
+  avatarPicId String? 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
@@ -66,7 +67,7 @@ model Objective {
 
 model KeyResult {
   id          Int      @id @default(autoincrement())
-  objectiveId Int
+  objectiveId Int?
   strategyId  Int?
   text        Json
   expiresAt   DateTime @default(dbgenerated("NOW() + INTERVAL '1 day'"))
@@ -100,25 +101,26 @@ model SoloScore {
 }
 
 model Team {
-  id        Int       @id @default(autoincrement())
-  title     String
-  mission   String
-  createdBy Int
-  createdAt DateTime  @default(now())
-
-  members   TeamMember[]
-  session   Session?
-  scores    FinalTeamScore[]
+  id           Int              @id @default(autoincrement())
+  title        String
+  mission      String
+  hostId       String?
+  createdAt    DateTime         @default(now())
+  teamavatorid String?
+  members      TeamMember[]
+  session      Session?
+  scores       FinalTeamScore[]
+  overallScores  OverallTeamScore[] 
 }
 
 model TeamMember {
   id        Int      @id @default(autoincrement())
   teamId    Int
-  userId    Int
+  userId    String   
   role      String   @default("PLAYER")
   joinedAt  DateTime @default(now())
 
-  team      Team @relation(fields: [teamId], references: [id])
+  team Team @relation(fields: [teamId], references: [id])
 
   @@unique([teamId, userId])
 }
@@ -126,41 +128,55 @@ model TeamMember {
 model Session {
   id        Int      @id @default(autoincrement())
   teamId    Int      @unique
-  token     String   @unique
+  token     String?  @unique
   createdAt DateTime @default(now())
-
+  startedAt DateTime?
   team      Team     @relation(fields: [teamId], references: [id])
 }
 
 model UserAutoJoin {
   id      Int     @id @default(autoincrement())
-  userId  Int     @unique
+  userId  String  @unique   // now string
   allowed Boolean @default(true)
 }
 
 model FinalTeamScore {
   id                  Int      @id @default(autoincrement())
-  userId              Int
+  userId              String   // now string
   teamId              Int
-  teamName            String
+  teamName            String?
   score               Int
-  scor                Int?
-  percentage          Int
+  title               String?
   alignmentStrategy   Int
   objectiveClarity    Int
   keyResultQuality    Int
   initiativeRelevance Int
   challengeAdoption   Int
+  time                String?
   badge               String?
   trophy              String?
-  totalScore          Int?
-  totalMembers        Int?
   avgPercentage       Float?
   createdAt           DateTime @default(now())
   updatedAt           DateTime @updatedAt
 
   team Team @relation(fields: [teamId], references: [id])
 }
+
+
+model OverallTeamScore {
+  id             Int       @id @default(autoincrement())
+  teamId         Int
+  teamName       String?
+  avgScore       Float
+  avgResolution  Float
+  totalMembers   Int
+  rank           Int?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  team Team @relation(fields: [teamId], references: [id])
+}
+
 
 model CampaignSession {
   id         String   @id @default(uuid())
@@ -174,8 +190,8 @@ model CampaignSession {
 
 model CampaignModeScore {
   id              Int      @id @default(autoincrement())
-  userId          Int
-  campaignId      Int
+  userId          String?
+  campaignId      Int?
   level           Int
   sector          String?
   role            String?
@@ -184,6 +200,8 @@ model CampaignModeScore {
   keyResultScore  Int?
   initiativeScore Int?
   challengeScore  Int?
+  strengths       String?
+  improvement     String?
   totalScore      Int?
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt

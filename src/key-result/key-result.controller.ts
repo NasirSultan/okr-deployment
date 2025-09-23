@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Delete,Query } from '@nestjs/common';
 import { KeyResultService } from './key-result.service';
 
 @Controller('key-result')
@@ -25,4 +25,13 @@ async findByObjective(@Param('id') objectiveId: string) {
   async deleteByStrategy(@Param('id') strategyId: number) {
     return this.service.deleteByStrategy(Number(strategyId));
   }
+
+ @Get('by-strategy')
+  async getByStrategy(@Query('strategyId') strategyId: string) {
+    if (!strategyId) return { error: 'strategyId is required' }
+    const id = parseInt(strategyId, 10)
+    return this.service.findByStrategy(id)
+  }
+
+
 }

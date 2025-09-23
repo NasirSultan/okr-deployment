@@ -1,0 +1,14 @@
+import { Controller, Post, Body } from '@nestjs/common';
+import { SuggestionEvaluatorService } from './suggestion-evaluator.service';
+import { EvaluateSuggestionDto } from './dto/evaluate-suggestion.dto';
+import { SuggestionResultDto } from './dto/suggestion-result.dto';
+
+@Controller('team/keyresuts')
+export class SuggestionEvaluatorController {
+  constructor(private readonly evaluatorService: SuggestionEvaluatorService) {}
+
+  @Post('evaluate')
+  async evaluate(@Body() body: EvaluateSuggestionDto): Promise<SuggestionResultDto> {
+    return this.evaluatorService.evaluateWithLLM(body);
+  }
+}

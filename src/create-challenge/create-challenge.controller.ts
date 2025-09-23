@@ -1,6 +1,6 @@
-import { Controller, Post, Body } from '@nestjs/common';
-import { CreateChallengeService } from './create-challenge.service';
-import type { ChallengeInput } from './create-challenge.service';
+import { Controller, Post, Body } from '@nestjs/common'
+import { CreateChallengeService } from './create-challenge.service'
+import type { ChallengeInput } from './create-challenge.service'
 
 @Controller('challenge')
 export class CreateChallengeController {
@@ -8,7 +8,6 @@ export class CreateChallengeController {
 
   @Post()
   async create(@Body() body: ChallengeInput) {
-    const result = await this.challengeService.generateChallenge(body);
-    return result;
+    return await this.challengeService.generateChallenge(body)
   }
 }

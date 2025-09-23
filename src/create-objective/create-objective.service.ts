@@ -10,29 +10,29 @@ export class CreateObjectiveService {
 
   constructor(private prisma: PrismaService) {}
 
+// service
 async generateAndSaveObjectives(
   strategyId: number,
   strategy: string,
   role: string,
   industry: string,
+  language: string,
 ) {
   let attempt = 0
   let objectivesData: Array<{ title: string; description?: string; difficulty?: number }> = []
 
   while (attempt < 3 && objectivesData.length === 0) {
     attempt++
-    const prompt = okrPrompt(strategy, role, industry)
+    const prompt = okrPrompt(strategy, role, industry, language)
 
     const response = await llm.call([{ role: 'user', content: prompt }])
     let text = response.text
 
-    // clean markdown artifacts
     text = text.replace(/```json/g, '').replace(/```/g, '').trim()
 
     try {
       const data = JSON.parse(text)
 
-      // make sure we got an array of objects
       if (Array.isArray(data.okrs)) {
         objectivesData = data.okrs.map((o: any) => ({
           title: o.title ?? '',
@@ -41,7 +41,6 @@ async generateAndSaveObjectives(
         }))
       }
     } catch (err) {
-      // optional: log the error for debugging
       console.error('JSON parse error in LLM response:', err)
     }
   }
@@ -50,12 +49,10 @@ async generateAndSaveObjectives(
     return { error: 'Failed to generate OKRs after 3 attempts' }
   }
 
-  // delete old objectives for this strategy
   await this.prisma.objective.deleteMany({
     where: { strategyId },
   })
 
-  // insert new objectives
   await this.prisma.objective.createMany({
     data: objectivesData.map((obj) => ({
       strategyId,
@@ -65,7 +62,6 @@ async generateAndSaveObjectives(
     })),
   })
 
-  // return saved objectives
   const savedObjectives = await this.prisma.objective.findMany({
     where: { strategyId },
     orderBy: { id: 'asc' },
@@ -73,6 +69,8 @@ async generateAndSaveObjectives(
 
   return { message: 'Objectives saved', objectives: savedObjectives }
 }
+
+
 
 
 async getObjectives(strategyId?: number) {
@@ -99,5 +97,16 @@ async getObjectives(strategyId?: number) {
 
   return { objectives, remainingAttempts: remaining - 1 }
 }
+
+async getObjectivesWithoutLimit(strategyId: number) {
+  return this.prisma.objective.findMany({
+    where: { strategyId },
+    orderBy: { id: 'asc' },
+  })
+}
+
+
+
+
 
 }

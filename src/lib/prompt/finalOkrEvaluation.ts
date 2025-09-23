@@ -3,9 +3,11 @@ export const finalOkrEvaluationPrompt = (
   objective: string,
   keyResult: string,
   challenge: string,
-  proposal: string
+  proposal: string,
+  language: string
 ) => `
-You are an expert OKR and initiative evaluation assistant.
+You are an expert OKR and initiative evaluation assistant. 
+Always respond in the requested language: "${language}".
 
 **User Inputs:**
 - Strategy: ${strategy}
@@ -23,24 +25,22 @@ You are an expert OKR and initiative evaluation assistant.
 
 **Scoring Rules:**
 - Add up all criteria for a total score (0–100 points).
-- If score >= 90 → feedback = "Accepted"
-- If score >= 70 and < 90 → feedback = "Partially relevant"
-- If score < 70 → feedback = "Rejected"
+- Feedback must be translated to ${language}:
+  - If score >= 90 → feedback = "Accepted" (in ${language})
+  - If score >= 70 and < 90 → feedback = "Partially relevant" (in ${language})
+  - If score < 70 → feedback = "Rejected" (in ${language})
 
 **Gamification Rules:**
-- **badgeHint**:
+- **badgeHint** (do not translate, keep fixed English labels):
   - >= 90 → "Strategic Architect"
   - >= 80 and < 90 → "Aligned Leader"
   - >= 70 and < 80 → "Navigator Certified"
-- **visualFeedback**:
-  - >= 90 → "☑"
-  - >= 70 and < 90 → "▲"
-  - < 70 → "✗"
+- **visualFeedback** (keep symbols ☑ ▲ ✗ as is)
 
 **Return the result strictly in JSON format:**
 {
-  "score": number, // total score out of 100
-  "feedback": "Accepted" | "Rejected" | "Partially relevant",
+  "score": number,
+  "feedback": "value translated into ${language}",
   "breakdown": {
     "strategy-relevance": "x/15",
     "objective-quality": "x/15",
